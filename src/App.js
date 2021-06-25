@@ -19,7 +19,7 @@ function App() {
       } else {
         alert("Install Metamask")
       }
-    }
+    },[]
   )
 
   return (
