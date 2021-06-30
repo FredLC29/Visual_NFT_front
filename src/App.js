@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react'
 
 function App() {
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
-  const [foundEgg, setFoundEgg] = useState(true)
+  const [foundEgg, setFoundEgg] = useState(false)
   const [imgEgg, setImgEgg] = useState("")
 
   const connectToWeb3 = useCallback(
@@ -29,16 +29,14 @@ function App() {
     console.log("new render");   
   }, []);
 
-  const displayEgg = useCallback(
-    async (tokenURI) => {
+  const displayEgg = async (tokenURI) => {
       setFoundEgg(true);
       //const tokenURI = "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
       //import egg from "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
       //fetch("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")
       //.then(res=>res.json());
       setImgEgg(tokenURI);
-    },[]
-  )
+    }
 
   return (
     <div className="App">
@@ -66,7 +64,7 @@ function App() {
 
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"></img>
         <map name="easter_eggs" id="easter_eggs">
-          <area shape="circle" coords="134,328,10" href="" alt="" onClick={()=>displayEgg("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")} />
+          <area shape="circle" coords="134,328,10" alt="" onClick={()=>displayEgg("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")} />
           
         </map>
 
