@@ -33,7 +33,7 @@ function App() {
 
   const displayEgg = async (_tokenId) => {
     setTokenId(_tokenId);
-    setIsRenderedEgg(isRenderedEgg);
+    setIsRenderedEgg(true);
     const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
     const tokenURI = "QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
     setEggImgUri(ipfsHttpGateway + tokenURI);
