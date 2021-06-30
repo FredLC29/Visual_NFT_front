@@ -1,10 +1,13 @@
 import './App.css';
-import egg from './images/background.jpg';
+import background from './images/background.jpg';
+import egg_basket from './images/egg_basket.png';
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 function App() {
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
+  const [foundEgg, setFoundEgg] = useState(true)
+  const [imgEgg, setImgEgg] = useState("")
 
   const connectToWeb3 = useCallback(
     async () => {
@@ -22,6 +25,21 @@ function App() {
     },[]
   )
 
+  useEffect(() => {
+    console.log("new render");   
+  }, []);
+
+  const displayEgg = useCallback(
+    async (tokenURI) => {
+      setFoundEgg(true);
+      //const tokenURI = "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
+      //import egg from "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
+      //fetch("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")
+      //.then(res=>res.json());
+      setImgEgg(tokenURI);
+    },[]
+  )
+
   return (
     <div className="App">
       <header className="App-header">
@@ -29,10 +47,10 @@ function App() {
         <h2>Earn your NFTs!</h2>
 
         <p>
-                Click on the image and find the hidden NFTs.
-                <br/>
-                Create a MetaMask account and log in.
-            </p>
+            Click on the image and find the hidden NFTs.
+            <br/>
+            Create a MetaMask account and log in.
+        </p>
 
         {
           isConnectedWeb3
@@ -40,27 +58,24 @@ function App() {
             : <button onClick={connectToWeb3}>Connect here</button>
         }
 
-        <img src={egg} alt="Easter egg hunt" width="612" height="408" border="0" usemap="#easter_eggs"></img>
-            <map name="easter_eggs" id="easter_eggs">
-              <area shape="circle" coords="134,328,10" href="" alt="" onclick="alert('Oeuf n°1 trouvé !');" />
-              <area shape="circle" coords="193,341,10" href="" alt="" onclick="alert('Oeuf n°2 trouvé !');" />
-              <area shape="circle" coords="195,359,10" href="" alt="" onclick="alert('Oeuf n°3 trouvé !');" />
-              <area shape="circle" coords="250,348,5" href="" alt="" onclick="alert('Oeuf n°4 trouvé !');" />
-              <area shape="circle" coords="288,339,5" href="" alt="" onclick="alert('Oeuf n°5 trouvé !');" />
-              <area shape="circle" coords="478,315,5" href="" alt="" onclick="alert('Oeuf n°6 trouvé !');" />
-              <area shape="circle" coords="376,248,5" href="" alt="" onclick="alert('Oeuf n°7 trouvé !');" />
-              <area shape="circle" coords="481,252,10" href="" alt="" onclick="alert('Oeuf n°8 trouvé !');" />
-              <area shape="circle" coords="26,262,3" href="" alt="" onclick="alert('Oeuf n°9 trouvé !');" />
-              <area shape="circle" coords="100,242,10" href="" alt="" onclick="alert('Oeuf n°10 trouvé !');" />
-              <area shape="circle" coords="536,316,3" href="" alt="" onclick="alert('Oeuf n°11 trouvé !');" />
-              <area shape="circle" coords="551,308,3" href="" alt="" onclick="alert('Oeuf n°12 trouvé !');" />
-              <area shape="circle" coords="573,252,10" href="" alt="" onclick="alert('Oeuf n°13 trouvé !');" />
-            </map>
+        <br/>
+        
+        {
+          foundEgg && <div><img src={imgEgg} width="60" alt="egg"></img></div>
+        }
+
+        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"></img>
+        <map name="easter_eggs" id="easter_eggs">
+          <area shape="circle" coords="134,328,10" href="" alt="" onClick={()=>displayEgg("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")} />
+          
+        </map>
+
+        <div><img src={egg_basket} width="60" alt="basket"></img></div>
       </header>
       <footer>
-            <p>Copyright &copy; The Easter Egg Hunt NFT Project, 2021 - All rights reserved | Directed by Fr&eacute;d&eacute;ric, S&eacute;bastien, Micka&euml;l &amp; Marjorie</p>
-            <p><a href="https://github.com/FredLC29/Visual_NFT_front/" target="_blank" rel="noreferrer"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title="GitHub" class="logo_footer"/></a></p>
-        </footer>
+          <p>Copyright &copy; The Easter Egg Hunt NFT Project, 2021 - All rights reserved | Directed by Fr&eacute;d&eacute;ric, S&eacute;bastien, Micka&euml;l &amp; Marjorie</p>
+          <p><a href="https://github.com/FredLC29/Visual_NFT_front/" target="_blank" rel="noreferrer"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title="GitHub" className="logo_footer"/></a></p>
+      </footer>
     </div>
   );
 }
