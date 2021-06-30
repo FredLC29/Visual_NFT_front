@@ -6,8 +6,10 @@ import { useState, useEffect, useCallback } from 'react'
 
 function App() {
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
-  const [foundEgg, setFoundEgg] = useState(false)
-  const [imgEgg, setImgEgg] = useState("")
+  const [isRenderedEgg, setIsRenderedEgg] = useState(false)
+  const [tokenId, setTokenId] = useState(0);
+  const [eggImgUri , setEggImgUri] = useState("")
+  const [eggMetaDataUri , setEggMetaDataUri] = useState("")
 
   const connectToWeb3 = useCallback(
     async () => {
@@ -29,14 +31,13 @@ function App() {
     console.log("new render");   
   }, []);
 
-  const displayEgg = async (tokenURI) => {
-      setFoundEgg(true);
-      //const tokenURI = "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
-      //import egg from "https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
-      //fetch("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")
-      //.then(res=>res.json());
-      setImgEgg(tokenURI);
-    }
+  const displayEgg = async (_tokenId) => {
+    setTokenId(_tokenId);
+    setIsRenderedEgg(isRenderedEgg);
+    const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
+    const tokenURI = "QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
+    setEggImgUri(ipfsHttpGateway + tokenURI);
+  }
 
   return (
     <div className="App">
@@ -59,16 +60,27 @@ function App() {
         <br/>
         
         {
-          foundEgg && <div><img src={imgEgg} width="60" alt="egg"></img></div>
+          isRenderedEgg && <div><h6>{tokenId}</h6><img src={eggImgUri} width="60" alt="egg"/></div>
         }
 
-        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"></img>
+        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
         <map name="easter_eggs" id="easter_eggs">
-          <area shape="circle" coords="134,328,10" alt="" onClick={()=>displayEgg("https://gateway.pinata.cloud/ipfs/QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV")} />
-          
+          <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
+          <area shape="circle" coords="193,341,10" alt="egg" onClick={() => displayEgg(2)} />
+          <area shape="circle" coords="195,359,10" alt="egg" onClick={() => displayEgg(3)} />
+          <area shape="circle" coords="250,348,5" alt="egg" onClick={() => displayEgg(4)} />
+          <area shape="circle" coords="288,339,5" alt="egg" onClick={() => displayEgg(5)} />
+          <area shape="circle" coords="478,315,5" alt="egg" onClick={() => displayEgg(6)} />
+          <area shape="circle" coords="376,248,5" alt="egg" onClick={() => displayEgg(7)} />
+          <area shape="circle" coords="481,252,10" alt="egg" onClick={() => displayEgg(8)} />
+          <area shape="circle" coords="26,262,3" alt="egg" onClick={() => displayEgg(9)} />
+          <area shape="circle" coords="100,242,10" alt="egg" onClick={() => displayEgg(10)} />
+          <area shape="circle" coords="536,316,3" alt="egg" onClick={() => displayEgg(11)} />
+          <area shape="circle" coords="551,308,3" alt="egg" onClick={() => displayEgg(12)} />
+          <area shape="circle" coords="573,252,10" alt="egg" onClick={() => displayEgg(13)} />
         </map>
 
-        <div><img src={egg_basket} width="60" alt="basket"></img></div>
+        <img src={egg_basket} width="60" alt="basket"/>
       </header>
       <footer>
           <p>Copyright &copy; The Easter Egg Hunt NFT Project, 2021 - All rights reserved | Directed by Fr&eacute;d&eacute;ric, S&eacute;bastien, Micka&euml;l &amp; Marjorie</p>
