@@ -38,6 +38,16 @@ function App() {
     const tokenURI = "QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
     setEggImgUri(ipfsHttpGateway + tokenURI);
   }
+  
+  const cancel = async () => {
+    setTokenId(0);
+    setIsRenderedEgg(false);
+  }
+  
+  const mint = async () => {
+    // if(isConnectedWeb3) {Contract call mint tokenId}
+    setIsRenderedEgg(false);
+  }
 
   return (
     <div className="App">
@@ -60,9 +70,17 @@ function App() {
         <br/>
         
         {
-          isRenderedEgg && <div><h6>{tokenId}</h6><img src={eggImgUri} width="60" alt="egg"/></div>
+          isRenderedEgg && 
+          <div>
+            <h6>{tokenId}</h6>
+            <div><img src={eggImgUri} width="60" alt="egg"/></div>
+            <button onClick={mint}>👍 Mint 🤏📌</button>
+            <button onClick={cancel}>👎 Put it back</button>
+          </div>
         }
 
+        <br/>
+        
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
         <map name="easter_eggs" id="easter_eggs">
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
@@ -80,6 +98,8 @@ function App() {
           <area shape="circle" coords="573,252,10" alt="egg" onClick={() => displayEgg(13)} />
         </map>
 
+        <br/>
+        
         <img src={egg_basket} width="60" alt="basket"/>
       </header>
       <footer>
