@@ -74,7 +74,7 @@ function App() {
           <div>
             <h6>{tokenId}</h6>
             <div><img src={eggImgUri} width="60" alt="egg"/></div>
-            <button onClick={mint}>👍 Mint 🤏📌</button>
+            <button onClick={mint}>👍 Mint 📌👜🥚🤏</button>
             <button onClick={cancel}>👎 Put it back</button>
           </div>
         }
@@ -83,6 +83,13 @@ function App() {
         
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
         <map name="easter_eggs" id="easter_eggs">
+        {
+          const array = [];
+          for (let index = 0; index < array.length; index++) {
+            const element = array[index];
+            
+          }
+        }
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
           <area shape="circle" coords="193,341,10" alt="egg" onClick={() => displayEgg(2)} />
           <area shape="circle" coords="195,359,10" alt="egg" onClick={() => displayEgg(3)} />
