@@ -39,6 +39,7 @@ function App() {
     setEggImgUri(ipfsHttpGateway + tokenURI);
   }
 
+  
   return (
     <div className="App">
       <header className="App-header">
