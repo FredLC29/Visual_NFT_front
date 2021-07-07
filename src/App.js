@@ -1,12 +1,19 @@
 import './App.css';
 import background from './images/background.jpg';
 import egg_basket from './images/egg_basket.png';
+
+import images from './utils/getImages'
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import Web3 from 'web3';
+
 import EasterEggNFT_ABI from './contracts/EasterEggNFT_ABI.json';
 
 
 import { useState, useEffect, useCallback } from 'react'
+
+import Egg from './components/Egg';
 
 function App() {
   const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545")
@@ -25,6 +32,9 @@ function App() {
   const [eggImgUri , setEggImgUri] = useState("")
   const [metadataIpfsHashFolder , setmetadataIpfsHashFolder] = useState("QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj")
   const [metadataJson , setMetadataJson] = useState("")
+
+  const [metadatas, setMetadatas] = useState([])
+
   const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
   
   const connectToWeb3 = async () => {
@@ -155,7 +165,7 @@ function App() {
           setTokenBalance(balance)
         } catch (error) {
           console.log(error);
-          alert("Error getting contract info!")
+          // alert("Error getting contract info!")
         }
       }
     }
@@ -163,32 +173,49 @@ function App() {
     getTokenBalance()
   }, [accounts])
 
+
+  useEffect(() => {
+    let _metadatas = []
+    for(let id = 1; id<=15; id++){
+
+      const eggMetaDataUri = ipfsHttpGateway + metadataIpfsHashFolder + "/" + id;
+      // const eggMetaDataUri = `${ipfsHttpGateway}${metadataIpfsHashFolder}/${id}`
+
+        
+        fetch(eggMetaDataUri)
+        .then((res) => {
+          if (res.status < 400) {
+            return res.json();
+          }
+          else {
+            throw new Error("Someting bad happened")
+          }
+        })
+        .then((json) => {
+          setMetadataJson(json);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+        _metadatas.push(metadataJson)
+    
+    }
+    setMetadatas(_metadatas)
+  }, [])
+
   useEffect(() => {
     if (tokenId) {
-      const eggMetaDataUri = ipfsHttpGateway + metadataIpfsHashFolder + "/" + tokenId;  
-      fetch(eggMetaDataUri)
-      .then((res) => {
-        if (res.status < 400) {
-          return res.json();
-        }
-        else {
-          throw new Error("Someting bad happened")
-        }
-      })
-      .then((json) => {
-        setMetadataJson(json);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-      setEggImgUri(ipfsHttpGateway + metadataJson.image);
+      
       // setEggName(metadataJson.name);
       // setEggDescription(metadataJson.description);
 
       // const eggImgIpfsHash = "QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
       // setEggImgUri(ipfsHttpGateway + eggImgIpfsHash);
 
+      setEggImgUri(ipfsHttpGateway + metadatas[tokenId].image);
       setIsRenderedEgg(true);
+
     }
   }, [tokenId])
 
@@ -231,16 +258,16 @@ function App() {
           setTokenBalance(balance)
         } catch(err) {
           console.log(err);
-          alert("Error getting new balance!")
+          // alert("Error getting new balance!")
         }
         setIsRenderedEgg(false);
       }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
-        alert("Egg already minted!")
+        // alert("Egg already minted!")
       });
     } catch(err) {
       console.log(err);
-      alert("Error minting NFT!")
+      // alert("Error minting NFT!")
     }
   }
 
@@ -263,7 +290,7 @@ function App() {
               setTokenBalance(balance)
             } catch(err) {
               console.log(err);
-              alert("Error getting new balance!")
+              // alert("Error getting new balance!")
             }
           }
         }
@@ -274,7 +301,7 @@ function App() {
       });
     } catch(err) {
       console.log(err);
-      alert("Error burning NFT!")
+      // alert("Error burning NFT!")
     }
   }
 
@@ -294,12 +321,13 @@ function App() {
             <br/>
             Create a MetaMask account and log in.
         </p>
-        
+        {console.log(images)}
+
         {
           isRenderedEgg && 
           <div>
             <h6 style={{color: "black"}}>{tokenId}</h6>
-            <div><img src={eggImgUri} width="60" alt="egg" title={metadataJson.name}/></div>
+            <div><img src={images[tokenId].image} width="60" alt="egg" title={metadataJson.name}/></div>
             <button onClick={mint}>👍 Mint 👜🥚🤏</button>
             <button onClick={burn}>👎 Put it back</button>
             <button onClick={cancel}>❌ Close</button>
@@ -309,6 +337,15 @@ function App() {
         <br/>
         
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
+
+        {
+          isRenderedEgg &&
+          <Egg
+            isRenderedEgg={true} 
+            eggUri={images[tokenId].image} 
+            tokenId={tokenId}
+          />
+        }
 
         <map name="easter_eggs" id="easter_eggs">
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
