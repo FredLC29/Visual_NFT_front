@@ -4,10 +4,13 @@ import { Button, Modal} from 'react-bootstrap';
 import { useState } from 'react'
 
 
-const Egg = ({ tokenId, eggUri, isRenderedEgg, mint, burn, name }) => {
+const Egg = ({ tokenId, eggUri, isRenderedEgg, setIsRenderedEgg, mint, burn, name }) => {
     const [show, setShow] = useState(isRenderedEgg)
 
-    const handleClose = () => setShow(false)
+    const handleClose = () => {
+        setIsRenderedEgg(false)
+        setShow(false)
+    }
     const handleShow = () => setShow(true)
 
   return (

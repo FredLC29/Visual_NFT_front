@@ -305,7 +305,8 @@ function App() {
         {
           isRenderedEgg &&
           <Egg
-            isRenderedEgg={true} 
+            isRenderedEgg={true}
+            setIsRenderedEgg={setIsRenderedEgg} 
             eggUri={images[tokenId].image} 
             tokenId={tokenId}
             mint={mint}
