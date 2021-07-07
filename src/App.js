@@ -2,17 +2,33 @@ import './App.css';
 import egg from './images/background.jpg';
 import egg_basket from './images/egg_basket.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import logo from '../images/background.jpg'
 
+import Web3 from 'web3'
 
 import { useState, useEffect, useCallback } from 'react'
+import Egg from './components/Egg';
+import EasterEggNFT_ABI from './contracts/EasterEggNFT_ABI.json';
 
 function App() {
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
-  const [tokenId, setTokenId] = useState(0);
+  const [accounts, setAccounts] = useState([])
+  const [web3] = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))
+  
+  //IPFS
   const [eggImgUri , setEggImgUri] = useState("")
   const [eggMetaDataUri , setEggMetaDataUri] = useState("")
+  const [metadataIpfsHashFolder , setmetadataIpfsHashFolder] = useState("QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj")
+  const [metadataJson , setMetadataJson] = useState("")
+  const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/"
+  
+  //contract ERC721
+  const tokenAddress = "0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b"
+  const [tokenName, setTokenName] = useState("")
+  const [tokenSymbol, setTokenSymbol] = useState("")
+  const [tokenSupply, setTokenSupply] = useState(0)
+  const [tokenBalance, setTokenBalance] = useState(0)
+  const [tokenId, setTokenId] = useState(0)
 
   const connectToWeb3 = useCallback(
     async () => {
@@ -29,7 +45,36 @@ function App() {
       }
     },[]
   )
+
+  useEffect(() => {
+    // Accounts
+    const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
+
+    if (accounts.length === 0) getAccounts()
+
+  }, [isConnectedWeb3])
   
+  useEffect(() => {
+      const easterEggNFTContract = new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress)
+      alert(easterEggNFTContract)
+      console.log("toto")
+      alert("here2")
+      const getEasterEggNFTInfo = async () => {
+        try { 
+          const name = await easterEggNFTContract.methods.name().call({from: accounts[0]})       
+          const symbol = await easterEggNFTContract.methods.symbol().call({from: accounts[0]})
+          const supply = await easterEggNFTContract.methods.totalSupply().call({from: accounts[0]})
+
+          setTokenName(name)
+          setTokenSymbol(symbol)
+          setTokenSupply(supply)
+        } catch (error) {
+          console.log(error);
+          alert("Error getting contract info!")
+        }
+      }
+      getEasterEggNFTInfo()
+    }, [isConnectedWeb3, accounts])
 
   useEffect(() => {
     console.log("new render");   
@@ -52,10 +97,10 @@ function App() {
     // if(isConnectedWeb3) {Contract call mint tokenId}
     setIsRenderedEgg(false);
   }
-
   
   return (
     <div className="App">
+
       <header className="App-header">
       {
           isConnectedWeb3
@@ -74,13 +119,7 @@ function App() {
         <br/>
         
         {
-          isRenderedEgg && 
-          <div>
-            <h6>{tokenId}</h6>
-            <div><img src={eggImgUri} width="60" alt="egg"/></div>
-            <button onClick={mint}>👍 Mint 🤏📌</button>
-            <button onClick={cancel}>👎 Put it back</button>
-          </div>
+          isRenderedEgg && <Egg tokenId={tokenId} eggUri={eggImgUri} isRenderedEgg={isRenderedEgg}/>     
         }
 
         <img src={egg} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
@@ -103,6 +142,7 @@ function App() {
 
         <br/>
         
+        <h6 style={{color: "black"}}>{tokenName} : {tokenBalance} / {tokenSupply} {tokenSymbol}</h6>
         <img src={egg_basket} width="60" alt="basket"/>
       </header>
       
