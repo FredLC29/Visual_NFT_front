@@ -91,13 +91,13 @@ function App() {
           });
         } catch (error) {
           console.log(error);
-          alert("Error getting contract info!")
+          //alert("Error getting contract info!")
         }
       // }
     }
     
     const displayConnect =  () => {
-      alert("Connected"); 
+      //alert("Connected"); 
       setIsConnectedWeb3(true)
       getEasterEggNFTInfo()
     }
@@ -236,30 +236,8 @@ function App() {
     )
     
     try {
-      // , 
-      //   function(error, transactionHash) {
-      //     if (error) {
-      //       console.log(error);
-      //       alert("Egg already minted!")
-      //     } else {
-      //       try {
-      //         const balance = easterEggNFTContract.methods.balanceOf(accounts[0]).call()
-      //         setTokenBalance(balance)
-      //       } catch(err) {
-      //         console.log(err);
-      //         alert("Error getting new balance!")
-      //       }
-      //     }
-      //   }
       await easterEggNFTContract.methods.mint(accounts[0], tokenId).send({from: accounts[0]})
       .then(function(receipt) {
-        try {
-          const balance = easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
-          setTokenBalance(balance)
-        } catch(err) {
-          console.log(err);
-          // alert("Error getting new balance!")
-        }
         setIsRenderedEgg(false);
       }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
@@ -279,22 +257,8 @@ function App() {
     )
     
     try {
-      await easterEggNFTContract.methods.burn(tokenId).send({from: accounts[0]}, 
-        function(error, transactionHash) {
-          if (error) {
-            console.log(error);
-            
-          } else {
-            try {
-              const balance = easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
-              setTokenBalance(balance)
-            } catch(err) {
-              console.log(err);
-              // alert("Error getting new balance!")
-            }
-          }
-        }
-      ).then(function(receipt){
+      await easterEggNFTContract.methods.burn(tokenId).send({from: accounts[0]})
+      .then(function(receipt){
         setIsRenderedEgg(false);
       }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
 
@@ -323,7 +287,7 @@ function App() {
         </p>
         {console.log(images)}
 
-        {
+        {/* {
           isRenderedEgg && 
           <div>
             <h6 style={{color: "black"}}>{tokenId}</h6>
@@ -332,7 +296,7 @@ function App() {
             <button onClick={burn}>👎 Put it back</button>
             <button onClick={cancel}>❌ Close</button>
           </div>
-        }
+        } */}
 
         <br/>
         
@@ -344,6 +308,9 @@ function App() {
             isRenderedEgg={true} 
             eggUri={images[tokenId].image} 
             tokenId={tokenId}
+            mint={mint}
+            burn={burn}
+            name={images[tokenId].name}
           />
         }
 
@@ -365,7 +332,7 @@ function App() {
 
         <br/>
         
-        <h6 style={{color: "black"}}>{tokenBalance} / {tokenSupply}</h6>
+        <h6 style={{color: "black"}}>{tokenBalance} / 13 </h6>
         <img src={egg_basket} width="60" alt="basket"/>
       
         <br/>

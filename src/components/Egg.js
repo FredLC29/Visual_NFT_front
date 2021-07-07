@@ -4,7 +4,7 @@ import { Button, Modal} from 'react-bootstrap';
 import { useState } from 'react'
 
 
-const Egg = ({ tokenId, eggUri, isRenderedEgg }) => {
+const Egg = ({ tokenId, eggUri, isRenderedEgg, mint, burn, name }) => {
     const [show, setShow] = useState(isRenderedEgg)
 
     const handleClose = () => setShow(false)
@@ -14,16 +14,19 @@ const Egg = ({ tokenId, eggUri, isRenderedEgg }) => {
     <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>What a beautiful EGG :wink: {tokenId} </Modal.Title>
+          <Modal.Title>What a beautiful EGG </Modal.Title>
         </Modal.Header>
-        <Modal.Body> Do you want to buy this EGG_NFT ?</Modal.Body>
-        <img src={eggUri} width="60" alt="egg"/>
+        <Modal.Body> Do you want to mint this NFT egg ?</Modal.Body>
+        <img src={eggUri} width="60" alt="egg" title={name}/>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-          :thumbsdown: Put it back
+          <Button variant="secondary" onClick={burn}>
+          👎 Put it back
+          </Button>
+          <Button variant="primary" onClick={mint}>
+          👍 Mint 👜🥚🤏
           </Button>
           <Button variant="primary" onClick={handleClose}>
-          :thumbsup: Mint :pinching_hand::pushpin:
+          ❌ Close
           </Button>
         </Modal.Footer>
       </Modal>
