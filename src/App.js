@@ -56,9 +56,7 @@ function App() {
   
   useEffect(() => {
       const easterEggNFTContract = new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress)
-      alert(easterEggNFTContract)
       console.log("toto")
-      alert("here2")
       const getEasterEggNFTInfo = async () => {
         try { 
           const name = await easterEggNFTContract.methods.name().call({from: accounts[0]})       
