@@ -12,7 +12,7 @@ function App() {
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
   const [tokenId, setTokenId] = useState(0);
   const [eggImgUri , setEggImgUri] = useState("")
-  const [eggMetaDataUri , setEggMetaDataUri] = useState("")
+  //const [eggMetaDataUri , setEggMetaDataUri] = useState("")
 
   const connectToWeb3 = useCallback(
     async () => {
