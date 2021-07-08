@@ -17,24 +17,19 @@ import Egg from './components/Egg';
 
 function App() {
   const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545")
+  
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
   const [accounts, setAccounts] = useState([])
-  // const [balance, setBalance] = useState(0)
   const tokenAddress = "0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b";
   const [tokenName, setTokenName] = useState("")
   const [tokenSymbol, setTokenSymbol] = useState("")
   const [tokenSupply, setTokenSupply] = useState(0)
   const [tokenBalance, setTokenBalance] = useState(0)
   const [tokenId, setTokenId] = useState(0);
-  // const [eggName, setEggName] = useState("");
-  // const [eggDescription, setEggDescription] = useState("");
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
-  const [eggImgUri , setEggImgUri] = useState("")
   const [metadataIpfsHashFolder , setmetadataIpfsHashFolder] = useState("QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj")
-  const [metadataJson , setMetadataJson] = useState("")
-
-
   const [metadatas, setMetadatas] = useState([])
+  const [metadataJson, setMetadataJson] = useState({})
 
   const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
   
@@ -63,9 +58,6 @@ function App() {
         try {
           // const name = 
           easterEggNFTContract.methods.name().call({from: accounts[0]})
-          .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-            console.log(error);
-          })
           .then(function(receipt){
             console.log(receipt);
             setTokenName(receipt)
@@ -73,9 +65,6 @@ function App() {
           
           // const symbol = 
           easterEggNFTContract.methods.symbol().call({from: accounts[0]})
-          .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-            console.log(error);
-          })
           .then(function(receipt){
             console.log(receipt);
             setTokenSymbol(receipt)
@@ -83,10 +72,7 @@ function App() {
           
           // const supply = 
           easterEggNFTContract.methods.supply().call({from: accounts[0]})
-          .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-            console.log(error);
-          })
-          .then(function(receipt){
+          .then(function(receipt) {
             console.log(receipt);
             setTokenSupply(receipt)
           });
@@ -97,6 +83,8 @@ function App() {
       // }
     }
     
+    getEasterEggNFTInfo()
+
     const displayConnect =  () => {
       //alert("Connected"); 
       const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
@@ -109,13 +97,18 @@ function App() {
         setIsConnectedWeb3(true)
       }
 
-      getEasterEggNFTInfo()
+      //getEasterEggNFTInfo()
     }
+
     const displayDisconnect =  () => {
       alert("Disconnected"); 
       setIsConnectedWeb3(false)
     }
-    const displayChainChanged =  () => alert("Chain changed")
+
+    const displayChainChanged =  () => {
+      alert("Chain changed! Please use Kovan Network.")
+    }
+
     const displayAccChanged =  () => {
       alert("Accounts changed")
       const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
@@ -147,12 +140,10 @@ function App() {
   useEffect(() => {
     // Accounts
     const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
-    // const getBalance = async () => setBalance(await web3.eth.getBalance(accounts[0]))
-
+    
     if (accounts.length === 0) getAccounts()
-    // if (accounts.length > 0) getBalance()
-
-    console.log(accounts)
+    
+    // console.log(accounts)
 
     if(accounts.length === 0) {
       setIsConnectedWeb3(false)
@@ -186,51 +177,43 @@ function App() {
 
   useEffect(() => {
     let _metadatas = []
-    for(let id = 1; id<=15; id++){
-
+    _metadatas.push({})
+    for(let id = 1; id <= 15; id++) {
       const eggMetaDataUri = ipfsHttpGateway + metadataIpfsHashFolder + "/" + id;
-      // const eggMetaDataUri = `${ipfsHttpGateway}${metadataIpfsHashFolder}/${id}`
-
-        
-        fetch(eggMetaDataUri)
-        .then((res) => {
-          if (res.status < 400) {
-            return res.json();
-          }
-          else {
-            throw new Error("Someting bad happened")
-          }
-        })
-        .then((json) => {
-          setMetadataJson(json);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-
-        _metadatas.push(metadataJson)
-    
+      // console.log(eggMetaDataUri)
+      fetch(eggMetaDataUri)
+      .then((res) => {
+        if (res.status < 400) {
+          return res.json();
+        }
+        else {
+          throw new Error("Someting bad happened")
+        }
+      })
+      .then((json) => {
+        // console.log(json);
+        json.url = ipfsHttpGateway + json.image;
+        _metadatas.push(json)
+        // console.log(_metadatas)
+        setMetadatas(_metadatas)
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     }
-    setMetadatas(_metadatas)
   }, [])
 
   useEffect(() => {
     if (tokenId) {
-      
-      // setEggName(metadataJson.name);
-      // setEggDescription(metadataJson.description);
-
-      // const eggImgIpfsHash = "QmWLGTzF12LaKDqRaTGAhBCtGZbgTHEihKt2VKTvkrhgBV";
-      // setEggImgUri(ipfsHttpGateway + eggImgIpfsHash);
-
-      setEggImgUri(ipfsHttpGateway + metadatas[tokenId].image);
-      setIsRenderedEgg(true);
-
+      setMetadataJson(metadatas[tokenId]);
     }
-  }, [tokenId])
+  }, [tokenId, metadatas])
 
   const displayEgg = async (_tokenId) => {
-    setTokenId(_tokenId);
+    if (_tokenId) {
+      setTokenId(_tokenId);
+      setIsRenderedEgg(true);
+    }
   }
   
   const handleClose = async () => {
@@ -238,6 +221,27 @@ function App() {
     setIsRenderedEgg(false);
   }
   
+  const ownerOf = async () => {
+    // if(isConnectedWeb3)
+    const easterEggNFTContract = new web3.eth.Contract(
+      EasterEggNFT_ABI,
+      tokenAddress
+    )
+    
+    try {
+      await easterEggNFTContract.methods.ownerOf(tokenId).send({from: accounts[0]})
+      .then(function(receipt) {
+        
+      }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+        console.log(error);
+        //alert("Egg ownerOf!")
+      });
+    } catch(err) {
+      console.log(err);
+      // alert("Error ownerOf NFT!")
+    }
+  }
+
   const mint = async () => {
     // if(isConnectedWeb3)
     const easterEggNFTContract = new web3.eth.Contract(
@@ -251,7 +255,7 @@ function App() {
         setIsRenderedEgg(false);
       }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
-        alert("Egg already minted!")
+        //alert("Egg already minted!")
       });
     } catch(err) {
       console.log(err);
@@ -284,7 +288,7 @@ function App() {
       <header className="App-header">
       {
           isConnectedWeb3
-            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className="logo"></img></p>
+            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className="logo" title={`Connected addresse: ${accounts[0]}`}></img></p>
             : <button className="btn btn-primary btn-lg" onClick={connectToWeb3}>Connect here</button>
         }
         <h1 className="App-title1">The NFT Easter Egg Hunt 2022</h1>
@@ -295,13 +299,12 @@ function App() {
             <br/>
             Create a MetaMask account and log in.
         </p>
-        {console.log(images)}
-
+        
         {/* {
           isRenderedEgg && 
           <div>
             <h6 style={{color: "black"}}>{tokenId}</h6>
-            <div><img src={images[tokenId].image} width="60" alt="egg" title={metadataJson.name}/></div>
+            <div><img src={metadatas[tokenId].url} width="60" alt="egg" title={metadatas[tokenId].name}/></div>
             <button onClick={mint}>👍 Mint 👜🥚🤏</button>
             <button onClick={burn}>👎 Put it back</button>
             <button onClick={handleClose}>❌ Close</button>
@@ -310,17 +313,21 @@ function App() {
 
         <br/>
         
-        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
+        {/* {console.log(metadatas)} */}
+        {
+          metadataJson &&
+          <Egg
+            isRenderedEgg={isRenderedEgg}
+            setIsRenderedEgg={setIsRenderedEgg} 
+            tokenId={tokenId}
+            tokenData={metadataJson}
+            mint={mint}
+            burn={burn}
+            handleClose={handleClose}
+          />
+        }
 
-        <Egg
-          isRenderedEgg={isRenderedEgg}
-          setIsRenderedEgg={setIsRenderedEgg} 
-          tokenId={tokenId}
-          tokenData={images[tokenId]}
-          mint={mint}
-          burn={burn}
-          handleClose={handleClose}
-        />
+        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
 
         <map name="easter_eggs" id="easter_eggs">
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
@@ -340,7 +347,7 @@ function App() {
 
         <br/>
         
-        <h6 style={{color: "black"}}>{tokenBalance} / 13</h6>
+        <h6 style={{color: "black"}}>{tokenBalance} / {tokenSupply}</h6>
         <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank">
           <img src={egg_basket} width="60" alt="basket"/>
         </a>

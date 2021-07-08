@@ -16,7 +16,7 @@ const Egg = ({tokenId, tokenData, isRenderedEgg, setIsRenderedEgg, mint, burn, h
           Do you want to mint this NFT easter egg?<br/>
           <br/>
           <center>
-            <img src={tokenData.image} width="80" alt="egg" title={tokenData.name}/>
+            <img src={tokenData.url} width="80" alt="egg" title={tokenData.name}/>
             <br/>
             {tokenData.description}
             <br/>
