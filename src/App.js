@@ -288,7 +288,7 @@ function App() {
       <header className="App-header">
       {
           isConnectedWeb3
-            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className="logo" title={`Connected addresse: ${accounts[0]}`}></img></p>
+            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className="logo" title={`Connected address: ${accounts[0]}`}></img></p>
             : <button className="btn btn-primary btn-lg" onClick={connectToWeb3}>Connect here</button>
         }
         <h1 className="App-title1">The NFT Easter Egg Hunt 2022</h1>
