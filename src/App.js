@@ -45,6 +45,11 @@ function App() {
   
   const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
   
+  const width = 612;
+  const heightMax = 408;
+  const heightMin = 240;
+  const difficulty = 20; // adjust difficulty between 0..20
+  
   const connectToWeb3 = async () => {
     if(window.ethereum) {
       try {
@@ -351,6 +356,9 @@ function App() {
           <area shape="circle" coords="536,316,3" alt="egg" onClick={() => displayEgg(11)} />
           <area shape="circle" coords="551,308,3" alt="egg" onClick={() => displayEgg(12)} />
           <area shape="circle" coords="573,252,10" alt="egg" onClick={() => displayEgg(13)} />
+
+          <area shape="circle" coords={`${parseInt(Math.random() * width) + 1},${parseInt(Math.random() * (heightMax - heightMin + 1)) + heightMin},${23 - difficulty}`} alt="egg" onClick={() => displayEgg(14)} />
+          <area shape="circle" coords={`${parseInt(Math.random() * width) + 1},${parseInt(Math.random() * (heightMax - heightMin + 1)) + heightMin},${23 - difficulty}`} alt="egg" onClick={() => displayEgg(15)} />
         </map>
 
         <br/>
