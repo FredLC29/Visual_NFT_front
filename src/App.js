@@ -19,7 +19,11 @@ function App() {
   const tokenAddress = "0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b"
   const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/"
   const metadataIpfsHashFolder = "QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj"
-
+  const width = 612;
+  const heightMax = 408;
+  const heightMin = 240;
+  const difficulty = 20; // adjust difficulty between 0..20
+  
   const web3 = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))[0]
   const [easterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
@@ -41,14 +45,8 @@ function App() {
   const [isWaitingOwnerOf, setIsWaitingOwnerOf] = useState(false)
   const [isWaitingMint, setIsWaitingMint] = useState(false)
   const [isWaitingBurn, setIsWaitingBurn] = useState(false)
-
   const [isWaiting, setIsWaiting] = useState(false)
   const [logoClass, setLogoClass] = useState("logo")
-  
-  const width = 612;
-  const heightMax = 408;
-  const heightMin = 240;
-  const difficulty = 20; // adjust difficulty between 0..20
   
   const connectToWeb3 = async () => {
     if(window.ethereum) {
@@ -156,7 +154,7 @@ function App() {
         window.ethereum.removeListener('accountsChanged', displayAccChanged)
       }
     }
-  })
+  }, [])
   
   useEffect(() => {
     // Accounts
@@ -215,7 +213,8 @@ function App() {
           setIsWaitingOwnerOf(true)
           easterEggNFTContract.methods.ownerOf(tokenId).call({from: accounts[0]}, function(error, result) {
             if(error) {
-              console.log("ERROR in ownerOf call", error);
+              // console.log("ERROR in ownerOf call", error);
+              console.log("REVERT ownerOf: EggNFT #" + tokenId + " already minted")
               setIsOwnerOfTId(false);
             }
             else {
