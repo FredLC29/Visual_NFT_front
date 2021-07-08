@@ -251,7 +251,7 @@ function App() {
         setIsRenderedEgg(false);
       }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
-        // alert("Egg already minted!")
+        alert("Egg already minted!")
       });
     } catch(err) {
       console.log(err);
@@ -312,17 +312,14 @@ function App() {
         
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
 
-        {
-          isRenderedEgg &&
-          <Egg
-            isRenderedEgg={true}
-            setIsRenderedEgg={setIsRenderedEgg} 
-            tokenId={tokenId}
-            tokenData={images[tokenId]}
-            mint={mint}
-            burn={burn}
-          />
-        }
+        <Egg
+          isRenderedEgg={isRenderedEgg}
+          setIsRenderedEgg={setIsRenderedEgg} 
+          tokenId={tokenId}
+          tokenData={images[tokenId]}
+          mint={mint}
+          burn={burn}
+        />
 
         <map name="easter_eggs" id="easter_eggs">
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
