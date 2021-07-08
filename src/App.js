@@ -10,23 +10,24 @@ import Web3 from 'web3';
 
 import EasterEggNFT_ABI from './contracts/EasterEggNFT_ABI.json';
 
-
-import { useState, useEffect, useCallback } from 'react'
-
 import Egg from './components/Egg';
 
+import { useState, useEffect } from 'react'
+
+
 function App() {
-  const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545")
-  
+  const [web3, setWeb3] = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
   const [accounts, setAccounts] = useState([])
-  const tokenAddress = "0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b";
+  const [tokenAddress, setTokenAddress] = useState("0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b")
+  const [easterEggNFTContract, setEasterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [tokenName, setTokenName] = useState("")
   const [tokenSymbol, setTokenSymbol] = useState("")
   const [tokenSupply, setTokenSupply] = useState(0)
   const [tokenBalance, setTokenBalance] = useState(0)
   const [tokenId, setTokenId] = useState(0);
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
+  const [isOwnerOfTId, setIsOwnerOfTId] = useState(false)
   const [metadataIpfsHashFolder , setmetadataIpfsHashFolder] = useState("QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj")
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
@@ -48,43 +49,6 @@ function App() {
   }
 
   useEffect(() => {
-    const getEasterEggNFTInfo = () => {
-      const easterEggNFTContract = new web3.eth.Contract(
-        EasterEggNFT_ABI,
-        tokenAddress
-      )
-      
-      // if(isConnectedWeb3) {
-        try {
-          // const name = 
-          easterEggNFTContract.methods.name().call({from: accounts[0]})
-          .then(function(receipt){
-            console.log(receipt);
-            setTokenName(receipt)
-          });
-          
-          // const symbol = 
-          easterEggNFTContract.methods.symbol().call({from: accounts[0]})
-          .then(function(receipt){
-            console.log(receipt);
-            setTokenSymbol(receipt)
-          });
-          
-          // const supply = 
-          easterEggNFTContract.methods.supply().call({from: accounts[0]})
-          .then(function(receipt) {
-            console.log(receipt);
-            setTokenSupply(receipt)
-          });
-        } catch (error) {
-          console.log(error);
-          //alert("Error getting contract info!")
-        }
-      // }
-    }
-    
-    getEasterEggNFTInfo()
-
     const displayConnect =  () => {
       //alert("Connected"); 
       const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
@@ -96,12 +60,10 @@ function App() {
       } else {
         setIsConnectedWeb3(true)
       }
-
-      //getEasterEggNFTInfo()
     }
 
     const displayDisconnect =  () => {
-      alert("Disconnected"); 
+      // alert("Disconnected"); 
       setIsConnectedWeb3(false)
     }
 
@@ -110,7 +72,7 @@ function App() {
     }
 
     const displayAccChanged =  () => {
-      alert("Accounts changed")
+      // alert("Accounts changed")
       const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
 
       const acc = getAccounts()
@@ -150,29 +112,53 @@ function App() {
     } else {
       setIsConnectedWeb3(true)
     }
-  }, [isConnectedWeb3, accounts])
+  }, [accounts, web3.eth])
 
   useEffect(() => {
-    const easterEggNFTContract = new web3.eth.Contract(
-      EasterEggNFT_ABI,
-      tokenAddress
-    )
+    const getEasterEggNFTInfo = () => {
+      try {
+        // const name = 
+        easterEggNFTContract.methods.name().call({from: accounts[0]})
+        .then(function(receipt){
+          console.log("name", receipt);
+          setTokenName(receipt)
+        });
+        
+        // const symbol = 
+        easterEggNFTContract.methods.symbol().call({from: accounts[0]})
+        .then(function(receipt){
+          console.log("symbol", receipt);
+          setTokenSymbol(receipt)
+        });
+        
+        // const supply = 
+        easterEggNFTContract.methods.supply().call({from: accounts[0]})
+        .then(function(receipt) {
+          console.log("supply", receipt);
+          setTokenSupply(receipt)
+        });
+      } catch (error) {
+        console.log(error);
+        //alert("Error getting contract info!")
+      }
+    }
     
     const getTokenBalance = async () => {
-      if(isConnectedWeb3) {
-        try {
-          const balance = await easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
-          
-          setTokenBalance(balance)
-        } catch (error) {
-          console.log(error);
-          // alert("Error getting contract info!")
-        }
+      try {
+        const balance = await easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
+        
+        setTokenBalance(balance)
+      } catch (error) {
+        console.log(error);
+        // alert("Error getting contract info!")
       }
     }
 
-    getTokenBalance()
-  }, [accounts])
+    if(isConnectedWeb3 && accounts && accounts.length) {
+      getEasterEggNFTInfo()
+      getTokenBalance()
+    }
+  }, [isConnectedWeb3, accounts, easterEggNFTContract.methods])
 
 
   useEffect(() => {
@@ -204,15 +190,37 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (tokenId) {
-      setMetadataJson(metadatas[tokenId]);
+    if (tokenId && isConnectedWeb3) {
+      const ownerOf = () => {
+        try {
+          easterEggNFTContract.methods.ownerOf(tokenId).call({from: accounts[0]}, function(error, result) {
+            if(error) {
+              console.log("ERROR in ownerOf call", error);
+              setIsOwnerOfTId(false);
+              setMetadataJson(metadatas[tokenId]);
+              setIsRenderedEgg(true);
+            }
+            else {
+              console.log("ownerOf(" + tokenId + ")", result);
+              console.log("Address connected", accounts[0]);
+              setIsOwnerOfTId(result === accounts[0]);
+              setMetadataJson(metadatas[tokenId]);
+              setIsRenderedEgg(true);
+            }
+          });
+        } catch(err) {
+          console.log(err);
+          // alert("Error ownerOf NFT!")
+        }
+      }
+
+      ownerOf(tokenId);
     }
-  }, [tokenId, metadatas])
+  }, [tokenId, metadatas, accounts, isConnectedWeb3, easterEggNFTContract.methods])
 
   const displayEgg = async (_tokenId) => {
     if (_tokenId) {
       setTokenId(_tokenId);
-      setIsRenderedEgg(true);
     }
   }
   
@@ -221,41 +229,15 @@ function App() {
     setIsRenderedEgg(false);
   }
   
-  const ownerOf = async () => {
-    // if(isConnectedWeb3)
-    const easterEggNFTContract = new web3.eth.Contract(
-      EasterEggNFT_ABI,
-      tokenAddress
-    )
-    
-    try {
-      await easterEggNFTContract.methods.ownerOf(tokenId).send({from: accounts[0]})
-      .then(function(receipt) {
-        
-      }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-        console.log(error);
-        //alert("Egg ownerOf!")
-      });
-    } catch(err) {
-      console.log(err);
-      // alert("Error ownerOf NFT!")
-    }
-  }
-
   const mint = async () => {
-    // if(isConnectedWeb3)
-    const easterEggNFTContract = new web3.eth.Contract(
-      EasterEggNFT_ABI,
-      tokenAddress
-    )
-    
     try {
       await easterEggNFTContract.methods.mint(accounts[0], tokenId).send({from: accounts[0]})
-      .then(function(receipt) {
-        setIsRenderedEgg(false);
-      }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+      .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
         //alert("Egg already minted!")
+      })
+      .then(function(receipt) {
+        setIsRenderedEgg(false);
       });
     } catch(err) {
       console.log(err);
@@ -264,18 +246,13 @@ function App() {
   }
 
   const burn = async () => {
-    // if(isConnectedWeb3)
-    const easterEggNFTContract = new web3.eth.Contract(
-      EasterEggNFT_ABI,
-      tokenAddress
-    )
-    
     try {
       await easterEggNFTContract.methods.burn(tokenId).send({from: accounts[0]})
+      .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+        console.log(error);
+      })
       .then(function(receipt){
         setIsRenderedEgg(false);
-      }).on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-
       });
     } catch(err) {
       console.log(err);
@@ -315,18 +292,17 @@ function App() {
         
         {/* {console.log(metadatas)} */}
         {
-          metadataJson &&
+          metadataJson && 
           <Egg
-            isRenderedEgg={isRenderedEgg}
-            setIsRenderedEgg={setIsRenderedEgg} 
-            tokenId={tokenId}
+            isShown={isRenderedEgg}
+            isOwner={isOwnerOfTId}
             tokenData={metadataJson}
             mint={mint}
             burn={burn}
             handleClose={handleClose}
           />
         }
-
+        
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
 
         <map name="easter_eggs" id="easter_eggs">
