@@ -2,7 +2,7 @@ import './App.css';
 import background from './images/background.jpg';
 import egg_basket from './images/egg_basket.png';
 
-import images from './utils/getImages'
+// import images from './utils/getImages'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -12,15 +12,18 @@ import EasterEggNFT_ABI from './contracts/EasterEggNFT_ABI.json';
 
 import Egg from './components/Egg';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 
 function App() {
-  const [web3, setWeb3] = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))
+  const tokenAddress = "0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b"
+  const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/"
+  const metadataIpfsHashFolder = "QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj"
+
+  const web3 = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))[0]
+  const [easterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
   const [accounts, setAccounts] = useState([])
-  const [tokenAddress, setTokenAddress] = useState("0x9E701F71D40b7CcB8d75F88C8d3Ee29E8b5E580b")
-  const [easterEggNFTContract, setEasterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [tokenName, setTokenName] = useState("")
   const [tokenSymbol, setTokenSymbol] = useState("")
   const [tokenSupply, setTokenSupply] = useState(0)
@@ -28,7 +31,6 @@ function App() {
   const [tokenId, setTokenId] = useState(0);
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
   const [isOwnerOfTId, setIsOwnerOfTId] = useState(false)
-  const [metadataIpfsHashFolder , setmetadataIpfsHashFolder] = useState("QmckuTg7Tozw3bUD8xTWjDC3X2iWnSKsZVi1GZn8Lsj2wj")
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
 
@@ -42,8 +44,6 @@ function App() {
 
   const [isWaiting, setIsWaiting] = useState(false)
   const [logoClass, setLogoClass] = useState("logo")
-  
-  const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
   
   const width = 612;
   const heightMax = 408;
@@ -63,6 +63,49 @@ function App() {
       alert("Please install Metamask")
     }
   }
+
+  const getEasterEggNFTInfo = useCallback(() => {
+    try {
+      setIsWaitingName(true)
+      easterEggNFTContract.methods.name().call({from: accounts[0]})
+      .then(function(receipt){
+        console.log("name", receipt);
+        setTokenName(receipt)
+        setIsWaitingName(false)
+      });
+      
+      setIsWaitingSymbol(true)
+      easterEggNFTContract.methods.symbol().call({from: accounts[0]})
+      .then(function(receipt){
+        console.log("symbol", receipt);
+        setTokenSymbol(receipt)
+        setIsWaitingSymbol(false)
+      });
+      
+      setIsWaitingSupply(true)
+      easterEggNFTContract.methods.supply().call({from: accounts[0]})
+      .then(function(receipt) {
+        console.log("supply", receipt);
+        setTokenSupply(receipt)
+        setIsWaitingSupply(false)
+      });
+    } catch (error) {
+      console.log(error);
+      //alert("Error getting contract info!")
+    }
+  }, [accounts, easterEggNFTContract.methods])
+  
+  const getTokenBalance = useCallback(async () => {
+    try {
+      setIsWaitingBalance(true)
+      const balance = await easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
+      setIsWaitingBalance(false)
+      setTokenBalance(balance)
+    } catch (error) {
+      console.log(error);
+      // alert("Error getting contract info!")
+    }
+  }, [accounts, easterEggNFTContract.methods])
 
   useEffect(() => {
     const displayConnect =  () => {
@@ -113,7 +156,7 @@ function App() {
         window.ethereum.removeListener('accountsChanged', displayAccChanged)
       }
     }
-  }, [])
+  })
   
   useEffect(() => {
     // Accounts
@@ -131,55 +174,11 @@ function App() {
   }, [accounts, web3.eth])
 
   useEffect(() => {
-    const getEasterEggNFTInfo = () => {
-      try {
-        setIsWaitingName(true)
-        easterEggNFTContract.methods.name().call({from: accounts[0]})
-        .then(function(receipt){
-          console.log("name", receipt);
-          setTokenName(receipt)
-          setIsWaitingName(false)
-        });
-        
-        setIsWaitingSymbol(true)
-        easterEggNFTContract.methods.symbol().call({from: accounts[0]})
-        .then(function(receipt){
-          console.log("symbol", receipt);
-          setTokenSymbol(receipt)
-          setIsWaitingSymbol(false)
-        });
-        
-        setIsWaitingSupply(true)
-        easterEggNFTContract.methods.supply().call({from: accounts[0]})
-        .then(function(receipt) {
-          console.log("supply", receipt);
-          setTokenSupply(receipt)
-          setIsWaitingSupply(false)
-        });
-      } catch (error) {
-        console.log(error);
-        //alert("Error getting contract info!")
-      }
-    }
-    
-    const getTokenBalance = async () => {
-      try {
-        setIsWaitingBalance(true)
-        const balance = await easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
-        setIsWaitingBalance(false)
-        setTokenBalance(balance)
-      } catch (error) {
-        console.log(error);
-        // alert("Error getting contract info!")
-      }
-    }
-
     if(isConnectedWeb3 && accounts && accounts.length) {
       getEasterEggNFTInfo()
       getTokenBalance()
     }
-  }, [isConnectedWeb3, accounts, easterEggNFTContract.methods])
-
+  }, [isConnectedWeb3, accounts, getEasterEggNFTInfo, getTokenBalance])
 
   useEffect(() => {
     let _metadatas = []
@@ -271,6 +270,7 @@ function App() {
       .then(function(receipt) {
         setIsWaitingMint(false)
         setIsRenderedEgg(false);
+        getTokenBalance();
       });
     } catch(err) {
       console.log(err);
@@ -290,6 +290,7 @@ function App() {
       .then(function(receipt){
         setIsWaitingBurn(false)
         setIsRenderedEgg(false);
+        getTokenBalance();
       });
     } catch(err) {
       console.log(err);
@@ -364,7 +365,7 @@ function App() {
         <br/>
         
         <h6 style={{color: "black"}}>{tokenBalance} / {tokenSupply}</h6>
-        <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank">
+        <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank" rel="noreferrer">
           <img src={egg_basket} width="60" alt="basket"/>
         </a>
 
