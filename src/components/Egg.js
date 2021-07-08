@@ -4,10 +4,7 @@ import { Button, Modal} from 'react-bootstrap';
 import { useState } from 'react'
 
 
-const Egg = ({tokenId, tokenData, isRenderedEgg, setIsRenderedEgg, mint, burn}) => {
-  const handleClose = () => {
-      setIsRenderedEgg(false)
-  }
+const Egg = ({tokenId, tokenData, isRenderedEgg, setIsRenderedEgg, mint, burn, handleClose}) => {
   
   return (
     <>

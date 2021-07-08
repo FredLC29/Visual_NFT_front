@@ -233,7 +233,7 @@ function App() {
     setTokenId(_tokenId);
   }
   
-  const cancel = async () => {
+  const handleClose = async () => {
     setTokenId(0);
     setIsRenderedEgg(false);
   }
@@ -304,7 +304,7 @@ function App() {
             <div><img src={images[tokenId].image} width="60" alt="egg" title={metadataJson.name}/></div>
             <button onClick={mint}>👍 Mint 👜🥚🤏</button>
             <button onClick={burn}>👎 Put it back</button>
-            <button onClick={cancel}>❌ Close</button>
+            <button onClick={handleClose}>❌ Close</button>
           </div>
         } */}
 
@@ -319,6 +319,7 @@ function App() {
           tokenData={images[tokenId]}
           mint={mint}
           burn={burn}
+          handleClose={handleClose}
         />
 
         <map name="easter_eggs" id="easter_eggs">
