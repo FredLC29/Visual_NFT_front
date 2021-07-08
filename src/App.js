@@ -33,12 +33,13 @@ function App() {
   const [tokenSupply, setTokenSupply] = useState(0)
   const [tokenBalance, setTokenBalance] = useState(0)
   const [tokenId, setTokenId] = useState(0);
-  const [showEgg, setShowEgg] = useState(false)
+  const [tokenOwner, setTokenOwner] = useState(0);
   const Enum_NFT_Status = useState({ NOT_OWNED: 0, IS_OWNER: 1, ELSE: 2 })[0]
   const [NFT_Status, setNFT_Status] = useState(Enum_NFT_Status.NOT_OWNED)
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
-
+  const [showEgg, setShowEgg] = useState(false)
+  
   const [isWaitingName, setIsWaitingName] = useState(false)
   const [isWaitingSymbol, setIsWaitingSymbol] = useState(false)
   const [isWaitingSupply, setIsWaitingSupply] = useState(false)
@@ -226,6 +227,7 @@ function App() {
                 setNFT_Status(Enum_NFT_Status.IS_OWNER);
               } else {
                 setNFT_Status(Enum_NFT_Status.ELSE);
+                setTokenOwner(result);
               }
             }
 
@@ -341,6 +343,7 @@ function App() {
           Enum_NFT_Status={Enum_NFT_Status}
           tokenData={metadataJson}
           tokenAddress={tokenAddress}
+          tokenOwner={tokenOwner}
           mint={mint}
           burn={burn}
           handleClose={handleClose}

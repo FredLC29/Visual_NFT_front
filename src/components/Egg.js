@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Modal} from 'react-bootstrap';
 
 
-const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, tokenAddress, mint, burn, handleClose}) => {
+const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, tokenAddress, tokenOwner, mint, burn, handleClose}) => {
   
   return (
     <>
@@ -64,7 +64,7 @@ const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, tokenAddress, mi
             </Button>
             : 
             <>
-            <Button variant="primary" href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank" rel="noreferrer">
+            <Button variant="primary" title={`TOKEN HOLDER: ${tokenOwner}`} href={`https://kovan.etherscan.io/token/${tokenAddress}?a=${tokenOwner}`} target="_blank" rel="noreferrer">
             🔍 Find owner 🧐
             </Button>
             </>
