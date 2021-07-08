@@ -4,7 +4,7 @@ import { Button, Modal} from 'react-bootstrap';
 import { useState } from 'react'
 
 
-const Egg = ({ tokenId, eggUri, isRenderedEgg, setIsRenderedEgg, mint, burn, name }) => {
+const Egg = ({tokenId, tokenData, isRenderedEgg, setIsRenderedEgg, mint, burn}) => {
     const [show, setShow] = useState(isRenderedEgg)
 
     const handleClose = () => {
@@ -17,10 +17,20 @@ const Egg = ({ tokenId, eggUri, isRenderedEgg, setIsRenderedEgg, mint, burn, nam
     <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>What a beautiful EGG </Modal.Title>
+          <Modal.Title>What a beautiful EGG 🥚! 😊</Modal.Title>
         </Modal.Header>
-        <Modal.Body> Do you want to mint this NFT egg ?</Modal.Body>
-        <img src={eggUri} width="60" alt="egg" title={name}/>
+        <Modal.Body>
+          Do you want to mint this NFT easter egg?
+          <br/><br/>
+          <div align="center">
+          <img src={tokenData.image} width="80" alt="egg" title={tokenData.name}/>
+          <br/>
+          {tokenData.description}
+          <br/>
+          {tokenData.name}
+          <p>Difficulty: {tokenData.difficulty}</p>
+          </div>
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={burn}>
           👎 Put it back

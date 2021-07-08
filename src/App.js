@@ -99,7 +99,16 @@ function App() {
     
     const displayConnect =  () => {
       //alert("Connected"); 
-      setIsConnectedWeb3(true)
+      const getAccounts = async () => setAccounts(await web3.eth.getAccounts())
+
+      const acc = getAccounts()
+
+      if(acc.length === 0) {
+        setIsConnectedWeb3(false)
+      } else {
+        setIsConnectedWeb3(true)
+      }
+
       getEasterEggNFTInfo()
     }
     const displayDisconnect =  () => {
@@ -308,11 +317,10 @@ function App() {
           <Egg
             isRenderedEgg={true}
             setIsRenderedEgg={setIsRenderedEgg} 
-            eggUri={images[tokenId].image} 
             tokenId={tokenId}
+            tokenData={images[tokenId]}
             mint={mint}
             burn={burn}
-            name={images[tokenId].name}
           />
         }
 
@@ -334,9 +342,11 @@ function App() {
 
         <br/>
         
-        <h6 style={{color: "black"}}>{tokenBalance} / 13 </h6>
-        <img src={egg_basket} width="60" alt="basket"/>
-      
+        <h6 style={{color: "black"}}>{tokenBalance} / 13</h6>
+        <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank">
+          <img src={egg_basket} width="60" alt="basket"/>
+        </a>
+
         <br/>
       </header>
       
