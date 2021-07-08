@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Modal} from 'react-bootstrap';
 
 
-const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, mint, burn, handleClose}) => {
+const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, tokenAddress, mint, burn, handleClose}) => {
   
   return (
     <>
@@ -13,7 +13,7 @@ const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, mint, burn, hand
         {
           ownerStatus === Enum_NFT_Status.IS_OWNER ? 
           <Modal.Body>
-            You've already minted this NFT Easter egg! <br/>
+            You already got this NFT Easter Egg! <br/>
             Do you want to put it back?<br/>
             <br/>
             <center>
@@ -27,7 +27,7 @@ const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, mint, burn, hand
           </Modal.Body>
           : ownerStatus === Enum_NFT_Status.NOT_OWNED ? 
           <Modal.Body>
-            Do you want to mint this NFT Easter egg?<br/>
+            Do you want to get this NFT Easter Egg?<br/>
             <br/>
             <center>
               <img src={tokenData.url} width="80" alt="egg" title={tokenData.name}/>
@@ -40,7 +40,7 @@ const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, mint, burn, hand
           </Modal.Body>
           : 
           <Modal.Body>
-            This Easter egg has already been minted! 🤷‍♀️🤷‍♂️<br/>
+            This Easter Egg has already been taken! 🤷‍♀️🤷‍♂️<br/>
             <br/>
             <center>
               <img src={tokenData.url} width="80" alt="egg" title={tokenData.name}/>
@@ -60,9 +60,14 @@ const Egg = ({isShown, ownerStatus, Enum_NFT_Status, tokenData, mint, burn, hand
             </Button>
             : ownerStatus === Enum_NFT_Status.NOT_OWNED ? 
             <Button variant="primary" onClick={mint}>
-            👍 Mint 👜🥚🤏
+            👍 Get it now 👜🥚🤏
             </Button>
-            : <></>
+            : 
+            <>
+            <Button variant="primary" href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank" rel="noreferrer">
+            🔍 Find owner 🧐
+            </Button>
+            </>
           }
           <Button variant="secondary" onClick={handleClose}>
           ❌ Close

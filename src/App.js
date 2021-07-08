@@ -344,6 +344,7 @@ function App() {
             ownerStatus={NFT_Status}
             Enum_NFT_Status={Enum_NFT_Status}
             tokenData={metadataJson}
+            tokenAddress={tokenAddress}
             mint={mint}
             burn={burn}
             handleClose={handleClose}
