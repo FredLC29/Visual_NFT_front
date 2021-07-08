@@ -23,22 +23,18 @@ function App() {
   const heightMax = 408;
   const heightMin = 240;
   const difficulty = 20; // adjust difficulty between 0..20
-  const Enum_NFT_Status = {
-    NOT_OWNED: 0, 
-    IS_OWNER: 1,
-    ELSE: 2
-  }
-
+  
   const web3 = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))[0]
-  const [easterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
-  const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
+  const [isConnectedToWeb3, setIsConnectedToWeb3] = useState(false)
   const [accounts, setAccounts] = useState([])
+  const [easterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [tokenName, setTokenName] = useState("")
   const [tokenSymbol, setTokenSymbol] = useState("")
   const [tokenSupply, setTokenSupply] = useState(0)
   const [tokenBalance, setTokenBalance] = useState(0)
   const [tokenId, setTokenId] = useState(0);
-  const [isRenderedEgg, setIsRenderedEgg] = useState(false)
+  const [showEgg, setShowEgg] = useState(false)
+  const Enum_NFT_Status = useState({ NOT_OWNED: 0, IS_OWNER: 1, ELSE: 2 })[0]
   const [NFT_Status, setNFT_Status] = useState(Enum_NFT_Status.NOT_OWNED)
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
@@ -53,12 +49,13 @@ function App() {
   const [isWaiting, setIsWaiting] = useState(false)
   const [logoClass, setLogoClass] = useState("logo")
   
+
   const connectToWeb3 = async () => {
     if(window.ethereum) {
       try {
         await window.ethereum.request({method: 'eth_requestAccounts'})
 
-        setIsConnectedWeb3(true)
+        setIsConnectedToWeb3(true)
       } catch (err) {
         console.error(err)
       }
@@ -118,15 +115,15 @@ function App() {
       const acc = getAccounts()
 
       if(acc.length === 0) {
-        setIsConnectedWeb3(false)
+        setIsConnectedToWeb3(false)
       } else {
-        setIsConnectedWeb3(true)
+        setIsConnectedToWeb3(true)
       }
     }
 
     const displayDisconnect =  () => {
       // alert("Disconnected"); 
-      setIsConnectedWeb3(false)
+      setIsConnectedToWeb3(false)
     }
 
     const displayChainChanged =  () => {
@@ -140,9 +137,9 @@ function App() {
       const acc = getAccounts()
 
       if(acc.length === 0) {
-        setIsConnectedWeb3(false)
+        setIsConnectedToWeb3(false)
       } else {
-        setIsConnectedWeb3(true)
+        setIsConnectedToWeb3(true)
       }
     }
 
@@ -159,7 +156,7 @@ function App() {
         window.ethereum.removeListener('accountsChanged', displayAccChanged)
       }
     }
-  }, [])
+  }, [web3.eth])
   
   useEffect(() => {
     // Accounts
@@ -170,18 +167,18 @@ function App() {
     // console.log(accounts)
 
     if(accounts.length === 0) {
-      setIsConnectedWeb3(false)
+      setIsConnectedToWeb3(false)
     } else {
-      setIsConnectedWeb3(true)
+      setIsConnectedToWeb3(true)
     }
   }, [accounts, web3.eth])
 
   useEffect(() => {
-    if(isConnectedWeb3 && accounts && accounts.length) {
+    if(isConnectedToWeb3 && accounts && accounts.length) {
       getEasterEggNFTInfo()
       getTokenBalance()
     }
-  }, [isConnectedWeb3, accounts, getEasterEggNFTInfo, getTokenBalance])
+  }, [isConnectedToWeb3, accounts, getEasterEggNFTInfo, getTokenBalance])
 
   useEffect(() => {
     let _metadatas = []
@@ -212,7 +209,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if(tokenId && isConnectedWeb3) {
+    if(tokenId && isConnectedToWeb3) {
       const ownerOf = () => {
         try {
           setIsWaitingOwnerOf(true)
@@ -234,7 +231,7 @@ function App() {
 
             setIsWaitingOwnerOf(false)
             setMetadataJson(metadatas[tokenId]);
-            setIsRenderedEgg(true);
+            setShowEgg(true);
           });
         } catch(err) {
           console.log(err);
@@ -244,7 +241,7 @@ function App() {
 
       ownerOf(tokenId);
     }
-  }, [tokenId, metadatas, accounts, isConnectedWeb3, easterEggNFTContract.methods])
+  }, [tokenId, metadatas, accounts, isConnectedToWeb3, easterEggNFTContract.methods, Enum_NFT_Status])
 
   useEffect(() => {
     setIsWaiting(isWaitingName || isWaitingSymbol || isWaitingSupply || isWaitingBalance || isWaitingOwnerOf || isWaitingMint || isWaitingBurn)
@@ -262,7 +259,7 @@ function App() {
   
   const handleClose = async () => {
     setTokenId(0);
-    setIsRenderedEgg(false);
+    setShowEgg(false);
   }
   
   const mint = async () => {
@@ -273,11 +270,11 @@ function App() {
         console.log(error);
         //alert("Egg already minted!")
         setIsWaitingMint(false);
-        setIsRenderedEgg(false);
+        setShowEgg(false);
       })
       .then(function(receipt) {
         setIsWaitingMint(false);
-        setIsRenderedEgg(false);
+        setShowEgg(false);
         getTokenBalance();
       });
     } catch(err) {
@@ -293,11 +290,11 @@ function App() {
       .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
         setIsWaitingBurn(false);
-        setIsRenderedEgg(false);
+        setShowEgg(false);
       })
       .then(function(receipt){
         setIsWaitingBurn(false);
-        setIsRenderedEgg(false);
+        setShowEgg(false);
         getTokenBalance();
       });
     } catch(err) {
@@ -310,7 +307,7 @@ function App() {
     <div className="App">
       <header className="App-header">
       {
-          isConnectedWeb3
+          isConnectedToWeb3
             ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className={logoClass} title={`Connected address: ${accounts[0]}`}></img></p>
             : <button className="btn btn-primary btn-lg" onClick={connectToWeb3}>Connect here</button>
         }
@@ -324,7 +321,7 @@ function App() {
         </p>
         
         {/* {
-          isRenderedEgg && 
+          showEgg && 
           <div>
             <h6 style={{color: "black"}}>{tokenId}</h6>
             <div><img src={metadatas[tokenId].url} width="60" alt="egg" title={metadatas[tokenId].name}/></div>
@@ -337,19 +334,17 @@ function App() {
         <br/>
         
         {/* {console.log(metadatas)} */}
-        {
-          metadataJson && 
-          <Egg
-            isShown={isRenderedEgg}
-            ownerStatus={NFT_Status}
-            Enum_NFT_Status={Enum_NFT_Status}
-            tokenData={metadataJson}
-            tokenAddress={tokenAddress}
-            mint={mint}
-            burn={burn}
-            handleClose={handleClose}
-          />
-        }
+
+        <Egg
+          isShown={showEgg}
+          ownerStatus={NFT_Status}
+          Enum_NFT_Status={Enum_NFT_Status}
+          tokenData={metadataJson}
+          tokenAddress={tokenAddress}
+          mint={mint}
+          burn={burn}
+          handleClose={handleClose}
+        />
         
         <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
 
@@ -375,9 +370,11 @@ function App() {
         <br/>
         
         <h6 style={{color: "black"}}>{tokenBalance} / {tokenSupply}</h6>
-        <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} target="_blank" rel="noreferrer">
+        <a href={`https://kovan.etherscan.io/dapp/${tokenAddress}#inventory`} title="View Dapp Page on etherscan" target="_blank" rel="noreferrer">
           <img src={egg_basket} width="60" alt="basket"/>
         </a>
+        <h6> </h6>
+        <h6>{tokenName} ({tokenSymbol})</h6>
 
         <br/>
       </header>
