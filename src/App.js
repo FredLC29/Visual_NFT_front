@@ -23,7 +23,12 @@ function App() {
   const heightMax = 408;
   const heightMin = 240;
   const difficulty = 20; // adjust difficulty between 0..20
-  
+  const Enum_NFT_Status = {
+    NOT_OWNED: 0, 
+    IS_OWNER: 1,
+    ELSE: 2
+  }
+
   const web3 = useState(new Web3(Web3.givenProvider || "ws://localhost:8545"))[0]
   const [easterEggNFTContract] = useState(new web3.eth.Contract(EasterEggNFT_ABI, tokenAddress))
   const [isConnectedWeb3, setIsConnectedWeb3] = useState(false)
@@ -34,7 +39,7 @@ function App() {
   const [tokenBalance, setTokenBalance] = useState(0)
   const [tokenId, setTokenId] = useState(0);
   const [isRenderedEgg, setIsRenderedEgg] = useState(false)
-  const [isOwnerOfTId, setIsOwnerOfTId] = useState(false)
+  const [NFT_Status, setNFT_Status] = useState(Enum_NFT_Status.NOT_OWNED)
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
 
@@ -207,20 +212,24 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (tokenId && isConnectedWeb3) {
+    if(tokenId && isConnectedWeb3) {
       const ownerOf = () => {
         try {
           setIsWaitingOwnerOf(true)
           easterEggNFTContract.methods.ownerOf(tokenId).call({from: accounts[0]}, function(error, result) {
             if(error) {
               // console.log("ERROR in ownerOf call", error);
-              console.log("REVERT ownerOf: EggNFT #" + tokenId + " already minted")
-              setIsOwnerOfTId(false);
+              console.log("REVERT ownerOf: EggNFT #" + tokenId + " not owned")
+              setNFT_Status(Enum_NFT_Status.NOT_OWNED);
             }
             else {
               // console.log("ownerOf(" + tokenId + ")", result);
               // console.log("Address connected", accounts[0]);
-              setIsOwnerOfTId(result === accounts[0]);
+              if(result === accounts[0]) {
+                setNFT_Status(Enum_NFT_Status.IS_OWNER);
+              } else {
+                setNFT_Status(Enum_NFT_Status.ELSE);
+              }
             }
 
             setIsWaitingOwnerOf(false)
@@ -263,11 +272,11 @@ function App() {
       .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
         //alert("Egg already minted!")
-        setIsWaitingMint(false)
+        setIsWaitingMint(false);
         setIsRenderedEgg(false);
       })
       .then(function(receipt) {
-        setIsWaitingMint(false)
+        setIsWaitingMint(false);
         setIsRenderedEgg(false);
         getTokenBalance();
       });
@@ -283,11 +292,11 @@ function App() {
       await easterEggNFTContract.methods.burn(tokenId).send({from: accounts[0]})
       .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
-        setIsWaitingBurn(false)
+        setIsWaitingBurn(false);
         setIsRenderedEgg(false);
       })
       .then(function(receipt){
-        setIsWaitingBurn(false)
+        setIsWaitingBurn(false);
         setIsRenderedEgg(false);
         getTokenBalance();
       });
@@ -332,7 +341,8 @@ function App() {
           metadataJson && 
           <Egg
             isShown={isRenderedEgg}
-            isOwner={isOwnerOfTId}
+            ownerStatus={NFT_Status}
+            Enum_NFT_Status={Enum_NFT_Status}
             tokenData={metadataJson}
             mint={mint}
             burn={burn}
