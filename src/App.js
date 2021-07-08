@@ -32,6 +32,17 @@ function App() {
   const [metadatas, setMetadatas] = useState([])
   const [metadataJson, setMetadataJson] = useState({})
 
+  const [isWaitingName, setIsWaitingName] = useState(false)
+  const [isWaitingSymbol, setIsWaitingSymbol] = useState(false)
+  const [isWaitingSupply, setIsWaitingSupply] = useState(false)
+  const [isWaitingBalance, setIsWaitingBalance] = useState(false)
+  const [isWaitingOwnerOf, setIsWaitingOwnerOf] = useState(false)
+  const [isWaitingMint, setIsWaitingMint] = useState(false)
+  const [isWaitingBurn, setIsWaitingBurn] = useState(false)
+
+  const [isWaiting, setIsWaiting] = useState(false)
+  const [logoClass, setLogoClass] = useState("logo")
+  
   const ipfsHttpGateway = "https://gateway.pinata.cloud/ipfs/";
   
   const connectToWeb3 = async () => {
@@ -117,25 +128,28 @@ function App() {
   useEffect(() => {
     const getEasterEggNFTInfo = () => {
       try {
-        // const name = 
+        setIsWaitingName(true)
         easterEggNFTContract.methods.name().call({from: accounts[0]})
         .then(function(receipt){
           console.log("name", receipt);
           setTokenName(receipt)
+          setIsWaitingName(false)
         });
         
-        // const symbol = 
+        setIsWaitingSymbol(true)
         easterEggNFTContract.methods.symbol().call({from: accounts[0]})
         .then(function(receipt){
           console.log("symbol", receipt);
           setTokenSymbol(receipt)
+          setIsWaitingSymbol(false)
         });
         
-        // const supply = 
+        setIsWaitingSupply(true)
         easterEggNFTContract.methods.supply().call({from: accounts[0]})
         .then(function(receipt) {
           console.log("supply", receipt);
           setTokenSupply(receipt)
+          setIsWaitingSupply(false)
         });
       } catch (error) {
         console.log(error);
@@ -145,8 +159,9 @@ function App() {
     
     const getTokenBalance = async () => {
       try {
+        setIsWaitingBalance(true)
         const balance = await easterEggNFTContract.methods.balanceOf(accounts[0]).call({from: accounts[0]})
-        
+        setIsWaitingBalance(false)
         setTokenBalance(balance)
       } catch (error) {
         console.log(error);
@@ -193,20 +208,21 @@ function App() {
     if (tokenId && isConnectedWeb3) {
       const ownerOf = () => {
         try {
+          setIsWaitingOwnerOf(true)
           easterEggNFTContract.methods.ownerOf(tokenId).call({from: accounts[0]}, function(error, result) {
             if(error) {
               console.log("ERROR in ownerOf call", error);
               setIsOwnerOfTId(false);
-              setMetadataJson(metadatas[tokenId]);
-              setIsRenderedEgg(true);
             }
             else {
-              console.log("ownerOf(" + tokenId + ")", result);
-              console.log("Address connected", accounts[0]);
+              // console.log("ownerOf(" + tokenId + ")", result);
+              // console.log("Address connected", accounts[0]);
               setIsOwnerOfTId(result === accounts[0]);
-              setMetadataJson(metadatas[tokenId]);
-              setIsRenderedEgg(true);
             }
+
+            setIsWaitingOwnerOf(false)
+            setMetadataJson(metadatas[tokenId]);
+            setIsRenderedEgg(true);
           });
         } catch(err) {
           console.log(err);
@@ -217,6 +233,14 @@ function App() {
       ownerOf(tokenId);
     }
   }, [tokenId, metadatas, accounts, isConnectedWeb3, easterEggNFTContract.methods])
+
+  useEffect(() => {
+    setIsWaiting(isWaitingName || isWaitingSymbol || isWaitingSupply || isWaitingBalance || isWaitingOwnerOf || isWaitingMint || isWaitingBurn)
+  }, [isWaitingName, isWaitingSymbol, isWaitingSupply, isWaitingBalance, isWaitingOwnerOf, isWaitingMint, isWaitingBurn])
+
+  useEffect(() => {
+    isWaiting ? setLogoClass("logo_nospin") : setLogoClass("logo")
+  }, [isWaiting])
 
   const displayEgg = async (_tokenId) => {
     if (_tokenId) {
@@ -231,12 +255,16 @@ function App() {
   
   const mint = async () => {
     try {
+      setIsWaitingMint(true)
       await easterEggNFTContract.methods.mint(accounts[0], tokenId).send({from: accounts[0]})
       .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
         //alert("Egg already minted!")
+        setIsWaitingMint(false)
+        setIsRenderedEgg(false);
       })
       .then(function(receipt) {
+        setIsWaitingMint(false)
         setIsRenderedEgg(false);
       });
     } catch(err) {
@@ -247,11 +275,15 @@ function App() {
 
   const burn = async () => {
     try {
+      setIsWaitingBurn(true)
       await easterEggNFTContract.methods.burn(tokenId).send({from: accounts[0]})
       .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
         console.log(error);
+        setIsWaitingBurn(false)
+        setIsRenderedEgg(false);
       })
       .then(function(receipt){
+        setIsWaitingBurn(false)
         setIsRenderedEgg(false);
       });
     } catch(err) {
@@ -265,7 +297,7 @@ function App() {
       <header className="App-header">
       {
           isConnectedWeb3
-            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className="logo" title={`Connected address: ${accounts[0]}`}></img></p>
+            ? <p><img src="https://cdn.worldvectorlogo.com/logos/metamask.svg" alt="logo_metamask" className={logoClass} title={`Connected address: ${accounts[0]}`}></img></p>
             : <button className="btn btn-primary btn-lg" onClick={connectToWeb3}>Connect here</button>
         }
         <h1 className="App-title1">The NFT Easter Egg Hunt 2022</h1>
