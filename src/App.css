@@ -59,10 +59,16 @@
 .App-footer{
   background: #bcdbf1;
 }
+.background {
+  box-shadow: 1px 1px 1px black;
+}
 img, svg {
   vertical-align: middle;
   border-radius:20px ;
-  box-shadow: 1px 1px 1px black;
+  /*box-shadow: 1px 1px 1px black;*/
+}
+h6{
+  color: #7072C8;
 }
 @keyframes App-logo-spin {
   from {
