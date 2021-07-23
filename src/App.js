@@ -322,6 +322,7 @@ function App() {
             Create a MetaMask account and log in.
         </p>
         
+        
         {/* {
           showEgg && 
           <div>
@@ -348,8 +349,7 @@ function App() {
           burn={burn}
           handleClose={handleClose}
         />
-        
-        <img src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
+        <img className="background" src={background} alt="Easter egg hunt" width="612" height="408" border="0" useMap="#easter_eggs"/>
 
         <map name="easter_eggs" id="easter_eggs">
           <area shape="circle" coords="134,328,10" alt="egg" onClick={() => displayEgg(1)} />
